@@ -1,20 +1,22 @@
 // Import module yang diperlukan
 const express = require('express');
+const expressLayouts = require('express-ejs-layouts');
 const app = express();
 const port = 3000;
 
 // Information using EJS
 app.set('view engine', 'ejs');
+app.use(expressLayouts);
 
 // Request get untuk path root
 app.get('/', (req, res) => {
     // res.sendFile('./index.html', { root: __dirname });
-    res.render('index');
+    res.render('index', { title: 'Home' });
 })
 
 // Request get untuk path /about
 app.get('/about', (req, res) => {
-    res.send('this is about page!');
+    res.render('about', { title: 'About' });
 })
 
 // Request get untuk path /contact
@@ -29,7 +31,7 @@ app.get('/contact', (req, res) => {
         name: 'Aji',
         mobile: '085700000002'
     }];
-    res.render('contact', {contacts});
+    res.render('contact', { contacts, title: 'Contact' });
 })
 
 app.get('/product/:productId', (req, res) => {
