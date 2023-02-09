@@ -1,13 +1,16 @@
 // Import module yang diperlukan
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
+const morgan = require('morgan');
 const app = express();
 const port = 3000;
+const contacts = require('./contacts');
 
 // Information using EJS
 app.set('view engine', 'ejs');
 app.use(expressLayouts);
 app.use(express.static('img'));
+app.use(morgan('dev'));
 
 // Request get untuk path root
 app.get('/', (req, res) => {
@@ -18,22 +21,14 @@ app.get('/', (req, res) => {
 // Request get untuk path /about
 app.get('/about', (req, res, next) => {
     res.render('about', { title: 'About' });
-    next();
+    // next();
 })
 
 // Request get untuk path /contact
 app.get('/contact', (req, res) => {
-    const contacts = [{
-        name: 'Kahfi',
-        mobile: '085721476789'
-    }, {
-        name: 'Kurnia',
-        mobile: '085700000001'
-    }, {
-        name: 'Aji',
-        mobile: '085700000002'
-    }];
-    res.render('contact', { contacts, title: 'Contact' });
+    const listContacts = contacts.listContact();
+
+    res.render('contact', { contacts: listContacts, title: 'Contact' });
 })
 
 app.get('/product/:productId', (req, res) => {
