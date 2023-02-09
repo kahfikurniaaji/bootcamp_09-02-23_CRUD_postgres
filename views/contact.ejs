@@ -15,12 +15,12 @@
         <li><a href="/about">About</a></li>
         <li><a href="/contact">Contact</a></li>
     </ul>
-    <table>
+    <table border="1">
         <tr>
             <th>Nama</th>
             <th>No Telp</th>
         </tr>
-        <% if (contacts) { %>
+        <% if (contacts.length) { %>
             <% contacts.forEach(contact=> { %>
                 <tr>
                     <td>
@@ -33,7 +33,7 @@
                 <% }); %>
                     <% } else {%>
                         <tr>
-                            <td>Kontak kosong</td>
+                            <td colspan="2">Kontak kosong</td>
                         </tr>
                         <% } %>
     </table>
