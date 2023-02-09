@@ -7,6 +7,7 @@ const port = 3000;
 // Information using EJS
 app.set('view engine', 'ejs');
 app.use(expressLayouts);
+app.use(express.static('img'));
 
 // Request get untuk path root
 app.get('/', (req, res) => {
@@ -15,8 +16,9 @@ app.get('/', (req, res) => {
 })
 
 // Request get untuk path /about
-app.get('/about', (req, res) => {
+app.get('/about', (req, res, next) => {
     res.render('about', { title: 'About' });
+    next();
 })
 
 // Request get untuk path /contact
@@ -47,6 +49,11 @@ app.get('/product/:productId/category/:categoryName', (req, res) => {
 app.use('/', (req, res) => {
     res.status(404);
     res.send('Page not found : 404');
+})
+
+app.use((req, res, next) => {
+    console.log('Time:', Date.now())
+    next();
 })
 
 // Start server
