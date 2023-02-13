@@ -12,6 +12,10 @@ const session = require("express-session");
 const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
 
+const pool = require("./config/db");
+
+app.use(express.json());
+
 // Information using EJS
 app.set("view engine", "ejs");
 app.use(expressLayouts);
@@ -42,6 +46,20 @@ app.get("/", (req, res) => {
   res.render("index", { title: "Home" });
 });
 
+app.get("/addasync", async (req, res) => {
+  try {
+    const name = "kahfi";
+    const email = "kahfi@gmail.com";
+    const mobile = "085600001111";
+    const newCont = await pool.query(
+      `INSERT INTO contacts VALUES ('${name}', '${email}', '${mobile}') RETURNING *`
+    );
+    res.json(newCont);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
 // Request get untuk path /about
 app.get("/about", (req, res) => {
   res.render("about", { title: "About" });
@@ -50,8 +68,8 @@ app.get("/about", (req, res) => {
 app.post(
   "/contact",
   [
-    body("name").custom((value) => {
-      const duplicateCheck = contacts.findContact(value);
+    body("name").custom(async (value) => {
+      const duplicateCheck = await contacts.findContact(value);
       if (duplicateCheck) {
         throw new Error("Nama sudah ada");
       }
@@ -60,7 +78,7 @@ app.post(
     check("mobile", "Mobile invalid").isMobilePhone("id-ID"),
     check("email", "Email invalid").isEmail(),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.render("contact_add", {
@@ -69,7 +87,7 @@ app.post(
       });
       console.log(errors.array());
     } else {
-      contacts.saveContact(req.body.name, req.body.email, req.body.mobile);
+      await contacts.saveContact(req.body);
       req.flash("msg", "Data berhasil ditambahkan");
       res.redirect("/contact");
     }
@@ -77,9 +95,10 @@ app.post(
 );
 
 // Request get untuk path /contact
-app.get("/contact", (req, res) => {
-  const listContacts = contacts.listContact();
-
+app.get("/contact", async (req, res) => {
+  const listContacts = await contacts.listContact();
+  // const db = await pool.query("SELECT * FROM contacts");
+  // const listContacts = db.rows;
   res.render("contact", {
     contacts: listContacts,
     title: "Contact",
@@ -91,32 +110,35 @@ app.get("/contact/add", (req, res) => {
   res.render("contact_add", { title: "Add Contact" });
 });
 
-app.get("/contact/:contactName", (req, res) => {
-  const contact = contacts.findContact(req.params.contactName);
+app.get("/contact/:contactName", async (req, res) => {
+  // const db = await pool.query(`SELECT * FROM contacts WHERE name = '${req.params.contactName}'`);
+  const contact = await contacts.findContact(req.params.contactName);
+  // const contact = db.rows[0];
+  console.log(contact);
   res.render("contact_detail", { contact, title: "Contact" });
 });
 
-app.get("/contact/delete/:contactName", (req, res) => {
-  const contact = contacts.deleteContact(req.params.contactName);
+app.get("/contact/delete/:contactName", async (req, res) => {
+  const contact = await contacts.findContact(req.params.contactName);
+  console.log("APP "+contact);
   if (!contact) {
     res.status(404);
     res.send("Data tidak ditemukan");
   } else {
-    contacts.deleteContact(req.params.contactName);
+    // await contacts.deleteContact(req.params.contactName);
+    await contacts.deleteContact(req.params.contactName)
     req.flash("msg", "Kontak berhasil dihapus");
     res.redirect("/contact");
   }
-  res.redirect("/contact");
+  // res.redirect("/contact");
 });
 
 // Edit Contact
-app.get("/contact/edit/:contactName", (req, res) => {
-  const contact = contacts.findContact(req.params.contactName);
-  // console.log(contactName)
-  // console.log(req.body.name)
-  // console.log(listContacts)
-  res.render("contact_edit", {
-    contact,
+app.get("/contact/edit/:contactName", async (req, res) => {
+  const contact = await contacts.findContact(req.params.contactName);
+  await res.render("contact_edit", {
+    oldName: req.params.contactName,
+    contact: JSON.parse(contact),
     title: "Edit",
     // msg: req.flash("msg")
   });
@@ -125,9 +147,9 @@ app.get("/contact/edit/:contactName", (req, res) => {
 app.put(
   "/contact/:contactName",
   [
-    body("name").custom((value) => {
-      let duplicateCheck = contacts.findContact(value);
-      if (duplicateCheck.name == value) {
+    body("name").custom(async (value) => {
+      let duplicateCheck = await contacts.findContact(value);
+      if (JSON.parse(duplicateCheck).name == value) {
         duplicateCheck = false;
       }
       if (duplicateCheck) {
@@ -138,17 +160,18 @@ app.put(
     check("mobile", "Mobile invalid").isMobilePhone("id-ID"),
     check("email", "Email invalid").isEmail(),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      const contact = contacts.findContact(req.params.contactName);
+      const contact = await contacts.findContact(req.params.contactName);
       res.render("contact_edit", {
         title: "Edit Contact",
         errors: errors.array(),
         contact: req.body,
+        oldName: req.params.contactName,
       });
     } else {
-      contacts.updateContact(
+      const contact = await contacts.updateContact(
         req.params.contactName,
         req.body.name,
         req.body.email,

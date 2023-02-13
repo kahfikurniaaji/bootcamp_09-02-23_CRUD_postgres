@@ -10,6 +10,7 @@
     </div>
    <% } %>
 <form action="/contact/<%= contact.name %>?_method=PUT" method="post">
+    <input type="hidden" name="oldName" value="<%= (oldName) ? oldName : contact.name %>">
     <label for="name" class="form-label">Name</label>
     <input type="text" class="form-control" id="name" name="name" value="<%= contact.name %>" required />
     <label for="email" class="form-label">Email</label>
