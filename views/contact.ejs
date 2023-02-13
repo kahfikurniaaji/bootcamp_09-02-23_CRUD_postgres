@@ -1,16 +1,30 @@
-<table border="1">
+<a class="btn bg-success text-light rounded-pill mt-4" href="/contact/add">Add Contact</a>
+<table class="table">
+    <% if (msg.length !== 0) { %>
+     <div class="alert alert-success" role="alert"><%= msg %></div>
+    <% } %>
     <tr>
+        <th>No</th>
         <th>Nama</th>
         <th>No Telp</th>
+        <th>Action</th>
     </tr>
-    <% if (contacts.length) { %>
-        <% contacts.forEach(contact=> { %>
+    <% if (contacts) { %>
+        <% contacts.forEach((contact, i)=> { %>
             <tr>
+                <td>
+                    <%=i+1 %>
+                </td>
                 <td>
                     <%=contact.name %>
                 </td>
                 <td>
                     <%=contact.mobile %>
+                </td>
+                <td>
+                    <a class="btn bg-primary text-light rounded-pill" href="/contact/<%= contact.name %>">detail</a>
+                    <a class="btn bg-warning text-light rounded-pill" href="/contact/edit/<%= contact.name %>">edit</a>
+                    <a class="bg-danger btn rounded-pill text-light" data-method="delete" href="/contact/delete/<%= contact.name %>" onclick="return confirm(`Hapus kontak?`)">delete</a>
                 </td>
             </tr>
             <% }); %>

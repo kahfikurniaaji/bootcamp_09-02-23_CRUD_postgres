@@ -61,7 +61,7 @@ const findContact = (name) => {
 
     // Jika nama kosong atau undefined
     if (!name) {
-        return undefined;
+        return false;
     }
 
     // Parsing file contacts.json menjadi sebuah array
@@ -72,7 +72,7 @@ const findContact = (name) => {
 
     // Cek ketersediaan kontak
     if (!contact) {
-        return undefined;
+        return false;
     }
 
     // Jika kontak ditemukan
@@ -87,7 +87,7 @@ const listContact = () => {
 
     // Cek apakah kontak kosong atau tidak
     if (contacts.length < 1) {
-        return undefined;
+        return false;
     }
 
     // Jika kontak tidak kosong
@@ -101,7 +101,7 @@ const deleteContact = (name) => {
 
     // Cek apakah nama ada di dalam kontak atau tidak
     if (!contact) {
-        return undefined;
+        return false;
     }
 
     // Parsing file contacts.json menjadi sebuah array
@@ -122,7 +122,7 @@ const updateContact = (name, newName, email, mobile) => {
     // Jika name kosong atau undefined
     if (!name) {
         console.log('old_name kosong! Harap isi old_name!');
-        return undefined;
+        return false;
     }
 
     // Membuat object contact
@@ -130,17 +130,24 @@ const updateContact = (name, newName, email, mobile) => {
 
     // Cek duplikat nama
     if (!contact) {
-        return undefined;
+        return false;
     }
 
     // Cek apakah nama telah digunakan
-    if (findContact(newName)) {
+    if (findContact(newName) && name !== newName) {
         console.log('Nama kontak telah digunakan');
-        return undefined;
+        return false;
     }
 
+    // Simpan kontak
+    const result = saveContact(newName, email, mobile);
+
     // Delete kontak
-    deleteContact(name);
+    if (result) {
+        deleteContact(name);
+    } else {
+        return false;
+    }
 
     // Cek apakah newName undefined
     if (!newName) {
@@ -157,8 +164,7 @@ const updateContact = (name, newName, email, mobile) => {
         mobile = contact.mobile;
     }
 
-    // Simpan kontak
-    return saveContact(newName, email, mobile);
+    return result;
 };
 
 const readFileContacts = () => {

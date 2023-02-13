@@ -1,0 +1,28 @@
+<p>
+    <% if (contact) { %>
+        <table class="table">
+            <tr>
+                <td>Name</td>
+                <td>:</td>
+                <td><%= contact.name %></td>
+            </tr>
+            <tr>
+                <td>Email</td>
+                <td>:</td>
+                <% if (contact.email) { %>
+                    <td><%= contact.email %></td>
+                <% } else { %>
+                    <td>-</td>
+                <% } %>
+            </tr>
+            <tr>
+                <td>Mobile</td>
+                <td>:</td>
+                <td><%= contact.mobile %></td>
+            </tr>
+        </table>
+        <a class="bg-primary btn text-light" href="/contact">Kembali</a>
+    <% } else { %>
+        <p>Data tidak ditemukan</p>
+    <% } %>
+</p>

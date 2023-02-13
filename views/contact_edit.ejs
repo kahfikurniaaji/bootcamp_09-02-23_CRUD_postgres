@@ -1,0 +1,21 @@
+<% if (typeof errors != "undefined") { %>
+    <div class="alert alert-danger" role="alert" style="width: 50rem; margin-left: 350px">
+       <ul>
+           <% errors.forEach(error => { %>
+               <li>
+                   <%= error.msg %>
+               </li>
+           <% }) %>
+       </ul>
+    </div>
+   <% } %>
+<form action="/contact/<%= contact.name %>?_method=PUT" method="post">
+    <label for="name" class="form-label">Name</label>
+    <input type="text" class="form-control" id="name" name="name" value="<%= contact.name %>" required />
+    <label for="email" class="form-label">Email</label>
+    <input type="text" class="form-control" id="email" name="email" value="<%= contact.email %>" />
+    <label for="mobile" class="form-label">Mobile</label>
+    <input type="text" class="form-control" id="mobile" name="mobile" value="<%= contact.mobile %>" required />
+    <button type="submit" class="btn btn-primary" id="contact">Update</button>
+    <a class="bg-danger btn text-light" href="/contact">Batal</a>
+</form>
